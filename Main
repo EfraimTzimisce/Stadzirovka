@@ -1,40 +1,66 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include <thread>
 
+// Интерфейс на английском, иначе компилятор просто не понимает русских букв.
+
+// Проверяем, является ли число простым или нет
 bool isPrime(int num) {
-    if (num <= 1) return false;
-    for (int i = 2; i * i <= num; ++i) {
-        if (num % i == 0) return false;
+    if (num <= 1) {
+        return false;
+    }
+    for (int i = 2; i <= sqrt(num); ++i) {
+        if (num % i == 0) {
+            return false;
+        }
     }
     return true;
 }
 
+// Создаем список найденных простых чисел
 void findPrimesInRange(int start, int end) {
-    for (int num = start; num <= end; ++num) {
-        if (isPrime(num)) {
-            std::cout << num << " ";
+    for (int i = start; i <= end; ++i) {
+        if (isPrime(i)) {
+            std::cout << i << " ";
         }
     }
 }
 
-int main(int argc, char* argv[]) {
-    if (argc < 2 || argc > 3) {
-        std::cout << "Usage: " << argv[0] << " <start> [<end>]\n";
+// Определяем от какого до какого числа проверять
+int main() {
+    int start = 1;
+    int end = 0;
+    int choice;
+
+    std::cout << "Please choose an option:" << std::endl;
+    std::cout << "Press 1, so I will find numbers from 1(one) to the selected number" << std::endl;
+    std::cout << "Press 2, so I will find numbers between first and last numbers" << std::endl;
+    std::cin >> choice;
+
+    if (choice == 1) {
+        std::cout << "Please tell me how many threads you wish to split the pool: ";
+        std::cin >> end;
+    } else if (choice == 2) {
+        std::cout << "Please enter first and last number of the range: ";
+        std::cin >> start >> end;
+    } else {
+        std::cout << "Sorry, your choice is not valid, please enter 1 or 2 when you launch programm next time" << std::endl;
         return 1;
     }
 
-    int start = std::stoi(argv[1]);
-    int end = (argc == 3) ? std::stoi(argv[2]) : start;
+    int numToCheck;
+    std::cout << "Please tell me how many threads you wish to split the pool: ";
+    std::cin >> numToCheck;
 
-    int numThreads = std::thread::hardware_concurrency();
-    int rangeSize = (end - start + 1) / numThreads;
+    int rangeSize = (end - start + 1) / numToCheck;
 
     std::vector<std::thread> threads;
-    for (int i = 0; i < numThreads; ++i) {
-        int threadStart = start + i * rangeSize;
-        int threadEnd = (i == numThreads - 1) ? end : threadStart + rangeSize - 1;
-        threads.emplace_back(findPrimesInRange, threadStart, threadEnd);
+
+    for (int i = 0; i < numToCheck; ++i) {
+        int rangeStart = start + i * rangeSize;
+        int rangeEnd = (i == numToCheck - 1) ? end : rangeStart + rangeSize - 1;
+        threads.emplace_back(findPrimesInRange, rangeStart, rangeEnd);
     }
 
     for (auto& thread : threads) {
