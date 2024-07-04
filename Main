@@ -49,6 +49,8 @@ int main() {
         return 1;
     }
 
+    // Разбиваем наше общеее количество чисел (pool) на отдельные потоки
+
     int numToCheck;
     std::cout << "Please tell me how many threads you wish to split the pool: ";
     std::cin >> numToCheck;
