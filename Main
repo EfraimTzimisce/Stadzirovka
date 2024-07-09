@@ -1,73 +1,66 @@
 #include <iostream>
 #include <vector>
-#include <cmath>
 #include <thread>
+#include <cmath>
 
-// Интерфейс на английском, иначе компилятор просто не понимает русских букв.
-
-// Проверяем, является ли число простым или нет
-bool isPrime(int num) {
-    if (num <= 1) {
-        return false;
-    }
+bool is_prime(int num) {
+    if (num <= 1) return false;
     for (int i = 2; i <= sqrt(num); ++i) {
-        if (num % i == 0) {
-            return false;
-        }
+        if (num % i == 0) return false;
     }
     return true;
 }
 
-// Создаем список найденных простых чисел
-void findPrimesInRange(int start, int end) {
+void find_primes(int start, int end, std::vector<int>& primes) {
     for (int i = start; i <= end; ++i) {
-        if (isPrime(i)) {
-            std::cout << i << " ";
+        if (is_prime(i)) {
+            primes.push_back(i);
         }
     }
 }
 
-// Определяем от какого до какого числа проверять
 int main() {
-    int start = 1;
-    int end = 0;
-    int choice;
+    int option;
+    std::cout << "Choose 1 - to check from 1 to selected number or 2 - between selected numbers\n";
+    std::cin >> option;
 
-    std::cout << "Please choose an option:" << std::endl;
-    std::cout << "Press 1, so I will find numbers from 1(one) to the selected number" << std::endl;
-    std::cout << "Press 2, so I will find numbers between first and last numbers" << std::endl;
-    std::cin >> choice;
+    int lower_bound = 1, upper_bound;
 
-    if (choice == 1) {
-        std::cout << "Please tell me how many threads you wish to split the pool: ";
-        std::cin >> end;
-    } else if (choice == 2) {
-        std::cout << "Please enter first and last number of the range: ";
-        std::cin >> start >> end;
-    } else {
-        std::cout << "Sorry, your choice is not valid, please enter 1 or 2 when you launch programm next time" << std::endl;
-        return 1;
+    if (option == 1) {
+        std::cout << "Enter number: ";
+        std::cin >> upper_bound;
+    } else if (option == 2) {
+        std::cout << "End and start of the range: ";
+        std::cin >> lower_bound >> upper_bound;
     }
 
-    // Разбиваем наше общеее количество чисел (pool) на отдельные потоки
+    if (upper_bound < lower_bound) {
+        std::swap(lower_bound, upper_bound);
+    }
 
-    int numToCheck;
-    std::cout << "Please tell me how many threads you wish to split the pool: ";
-    std::cin >> numToCheck;
-
-    int rangeSize = (end - start + 1) / numToCheck;
-
+    int num_threads = std::thread::hardware_concurrency();
     std::vector<std::thread> threads;
+    std::vector<std::vector<int>> results(num_threads);
 
-    for (int i = 0; i < numToCheck; ++i) {
-        int rangeStart = start + i * rangeSize;
-        int rangeEnd = (i == numToCheck - 1) ? end : rangeStart + rangeSize - 1;
-        threads.emplace_back(findPrimesInRange, rangeStart, rangeEnd);
+    for (int i = 0; i < num_threads; ++i) {
+        int start = lower_bound + i * (upper_bound - lower_bound + 1) / num_threads;
+        int end = lower_bound + (i + 1) * (upper_bound - lower_bound + 1) / num_threads - 1;
+        threads.emplace_back(find_primes, start, end, std::ref(results[i]));
     }
 
     for (auto& thread : threads) {
         thread.join();
     }
+
+    std::vector<int> all_primes;
+    for (const auto& result : results) {
+        all_primes.insert(all_primes.end(), result.begin(), result.end());
+    }
+
+    for (int prime : all_primes) {
+        std::cout << prime << " ";
+    }
+    std::cout << std::endl;
 
     return 0;
 }
