@@ -1,66 +1,85 @@
 #include <iostream>
 #include <vector>
-#include <thread>
-#include <cmath>
+#include <chrono>
 
-bool is_prime(int num) {
+using namespace std;
+using namespace std::chrono;
+
+// Добавил больше комментариев, чтобы проше было определить, какая часть кода за что отвечает.
+
+/*
+
+ Команда для сборки программы
+g++ -o Stadzirovka stadzirovka.cpp -std=c++11
+
+Команда для вызова программы 
+./Stadzirovka 1 1000 (подставить желаемые параметры)
+
+Test 1 (числа от 50 до 100) -  000:00.016
+Test 2 (числа от 9 до 190) - 000:00.031
+Test 3 (числа от 1 до 500) - 000:00.016
+
+*/
+
+// Определяем, простое ли число
+bool isPrime(int num) {
     if (num <= 1) return false;
-    for (int i = 2; i <= sqrt(num); ++i) {
-        if (num % i == 0) return false;
+    if (num <= 3) return true;
+    if (num % 2 == 0 || num % 3 == 0) return false;
+    for (int i = 5; i * i <= num; i += 6) {
+        if (num % i == 0 || num % (i + 2) == 0) return false;
     }
     return true;
 }
 
-void find_primes(int start, int end, std::vector<int>& primes) {
-    for (int i = start; i <= end; ++i) {
-        if (is_prime(i)) {
-            primes.push_back(i);
+// Ищем простые числа в заданном диапазоне
+vector<int> findPrimes(int start, int end) {
+    vector<int> primes;
+    for (int num = start; num <= end; num++) {
+        if (isPrime(num)) {
+            primes.push_back(num);
         }
     }
+    return primes;
 }
 
-int main() {
-    int option;
-    std::cout << "Choose 1 - to check from 1 to selected number or 2 - between selected numbers\n";
-    std::cin >> option;
-
-    int lower_bound = 1, upper_bound;
-
-    if (option == 1) {
-        std::cout << "Enter number: ";
-        std::cin >> upper_bound;
-    } else if (option == 2) {
-        std::cout << "End and start of the range: ";
-        std::cin >> lower_bound >> upper_bound;
+int main(int argc, char *argv[]) {
+    if (argc < 2 || argc > 3) {
+        cout << "Usage: " << argv[0] << " <start> <end>" << endl;
+        cout << "Or: " << argv[0] << " <end>" << endl;
+        return 1;
     }
 
-    if (upper_bound < lower_bound) {
-        std::swap(lower_bound, upper_bound);
+    int start = 1;
+    int end = 0;
+
+    if (argc == 2) {
+        end = atoi(argv[1]);
+    } else {
+        start = atoi(argv[1]);
+        end = atoi(argv[2]);
     }
 
-    int num_threads = std::thread::hardware_concurrency();
-    std::vector<std::thread> threads;
-    std::vector<std::vector<int>> results(num_threads);
+    // Засекаем время
+    auto start_time = high_resolution_clock::now();
 
-    for (int i = 0; i < num_threads; ++i) {
-        int start = lower_bound + i * (upper_bound - lower_bound + 1) / num_threads;
-        int end = lower_bound + (i + 1) * (upper_bound - lower_bound + 1) / num_threads - 1;
-        threads.emplace_back(find_primes, start, end, std::ref(results[i]));
-    }
+    // Поиск простых чисел в заданном диапазоне
+    vector<int> primes = findPrimes(start, end);
 
-    for (auto& thread : threads) {
-        thread.join();
-    }
+    auto end_time = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(end_time - start_time);
 
-    std::vector<int> all_primes;
-    for (const auto& result : results) {
-        all_primes.insert(all_primes.end(), result.begin(), result.end());
-    }
+    cout << "Prime numbers in range [" << start << ", " << end << "]:" << endl;
 
-    for (int prime : all_primes) {
-        std::cout << prime << " ";
+    // Показываем, что нашли (по требованию)
+    /*
+    for (int prime : primes) {
+        cout << prime << " ";
     }
-    std::cout << std::endl;
+    cout << endl;
+    */
+
+    cout << "Execution time: " << duration.count() << " milliseconds" << endl;
 
     return 0;
 }
