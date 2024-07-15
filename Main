@@ -1,89 +1,101 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <cmath>
 
-using namespace std;
-using namespace std::chrono;
-
-// Добавил больше комментариев, чтобы проше было определить, какая часть кода за что отвечает.
-
-/*
-
- Команда для сборки программы
-g++ -o Stadzirovka stadzirovka.cpp -std=c++11
-
-Команда для вызова программы 
-./Stadzirovka 1 1000 (подставить желаемые параметры)
-
-Test 1 (числа от 50 до 100) -  000:00.016
-Test 2 (числа от 9 до 190) - 000:00.031
-Test 3 (числа от 1 до 500) - 000:00.016
-
-Дополнительные тесты
-Test 4 (числа от 1 до 1000) - 000:00.078
-Test 5 (числа от 1 до 622337203) - 000:00.031
-
-*/
-
-// Определяем, простое ли число
-bool isPrime(int num) {
-    if (num <= 1) return false;
-    if (num <= 3) return true;
-    if (num % 2 == 0 || num % 3 == 0) return false;
-    for (int i = 5; i * i <= num; i += 6) {
-        if (num % i == 0 || num % (i + 2) == 0) return false;
-    }
-    return true;
-}
-
-// Ищем простые числа в заданном диапазоне
-vector<int> findPrimes(int start, int end) {
-    vector<int> primes;
-    for (int num = start; num <= end; num++) {
-        if (isPrime(num)) {
-            primes.push_back(num);
+// Функция для поиска простых чисел методом деления
+void findPrimesByTrialDivision(int start, int end) {
+    
+    int count = 0;
+    auto start_time = std::chrono::steady_clock::now();
+    for (int i = start; i <= end; ++i) {
+        if (isPrime(i)) {
+            // std::cout << i << " ";
+            count++;
         }
     }
-    return primes;
+    auto end_time = std::chrono::steady_clock::now();
+    std::cout << "Perebor: Found " << count << " prime numbers in "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()
+              << " milliseconds" << std::endl;
+}
+
+// Функция для поиска простых чисел методом Алгоритм Ферма
+void findPrimesByFermatMethod(int start, int end) {
+    auto start_time = std::chrono::steady_clock::now();
+
+    std::vector<int> primes;
+    for (int i = start; i <= end; ++i) {
+        bool isPrime = true;
+        if (i <= 1) {
+            isPrime = false;
+        } else {
+            for (int j = 2; j <= sqrt(i); ++j) {
+                if (i % j == 0) {
+                    isPrime = false;
+                    break;
+                }
+            }
+        }
+        if (isPrime) {
+            primes.push_back(i);
+        }
+    }
+
+    auto end_time = std::chrono::steady_clock::now();
+    std::cout << "Fermat's Method: Found " << primes.size() << " prime numbers in "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()
+              << " milliseconds" << std::endl;
+}
+
+// Функция для поиска простых чисел методом Решето Эратосфена
+void findPrimesBySieveOfEratosthenes(int start, int end) {
+    auto start_time = std::chrono::steady_clock::now();
+
+    std::vector<bool> isPrime(end + 1, true);
+    isPrime[0] = isPrime[1] = false;
+    for (int p = 2; p * p <= end; ++p) {
+        if (isPrime[p]) {
+            for (int i = p * p; i <= end; i += p) {
+                isPrime[i] = false;
+            }
+        }
+    }
+
+    int count = 0;
+    for (int i = start; i <= end; ++i) {
+        if (isPrime[i]) {
+            // std::cout << i << " ";
+            count++;
+        }
+    }
+
+    auto end_time = std::chrono::steady_clock::now();
+    std::cout << "Sieve of Eratosthenes: Found " << count << " prime numbers in "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()
+              << " milliseconds" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
-    if (argc < 2 || argc > 3) {
-        cout << "Usage: " << argv[0] << " <start> <end>" << endl;
-        cout << "Or: " << argv[0] << " <end>" << endl;
+    if (argc != 4) {
+        std::cerr << "Usage: " << argv[0] << " <option> <start_number> <end_number>" << std::endl;
         return 1;
     }
 
-    int start = 1;
-    int end = 0;
+    char option = argv[1][0];
+    int start = std::stoi(argv[2]);
+    int end = std::stoi(argv[3]);
 
-    if (argc == 2) {
-        end = atoi(argv[1]);
+    if (option == 's') {
+        findPrimesByTrialDivision(start, end);
+    } else if (option == 'f') {
+        findPrimesByFermatMethod(start, end);
+    } else if (option == 'e') {
+        findPrimesBySieveOfEratosthenes(start, end);
     } else {
-        start = atoi(argv[1]);
-        end = atoi(argv[2]);
+        std::cerr << "Invalid option. Available options: s (Trial Division), f (Fermat Method), e (Sieve of Eratosthenes)" << std::endl;
+        return 1;
     }
-
-    // Засекаем время
-    auto start_time = high_resolution_clock::now();
-
-    // Поиск простых чисел в заданном диапазоне
-    vector<int> primes = findPrimes(start, end);
-
-    auto end_time = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(end_time - start_time);
-
-    cout << "Prime numbers in range [" << start << ", " << end << "]:" << endl;
-
-    // Показываем, что нашли (по требованию)
-    /*
-    for (int prime : primes) {
-        cout << prime << " ";
-    }
-    cout << endl;
-    */
-
-    cout << "Execution time: " << duration.count() << " milliseconds" << endl;
 
     return 0;
 }
