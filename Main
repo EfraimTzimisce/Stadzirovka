@@ -64,11 +64,23 @@ void findPrimesBySieveOfEratosthenes(int start, int end) {
 }
 
 // Функция для поиска простых чисел методом Ферма
-void findPrimesByFermat(int start, int end) {
+void findPrimesByFermatMethod(int start, int end) {
     auto start_time = std::chrono::steady_clock::now();
+
     std::vector<int> primes;
     for (int i = start; i <= end; ++i) {
-        if (isFermatPrime(i)) {
+        bool isPrime = true;
+        if (i <= 1) {
+            isPrime = false;
+        } else {
+            for (int j = 2; j <= sqrt(i); ++j) {
+                if (i % j == 0) {
+                    isPrime = false;
+                    break;
+                }
+            }
+        }
+        if (isPrime) {
             primes.push_back(i);
         }
     }
@@ -102,9 +114,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    std::cout << "Start from: " << start << std::endl; // Добавленная строка "Start from"
+    std::cout << "Ends with: " << end << std::endl; // Добавленная строка "Ends with"
+
     findPrimesByTrialDivision(start, end); // Поиск простых чисел методом перебора
     findPrimesBySieveOfEratosthenes(start, end); // Поиск простых чисел методом Решета Эратосфена
-    findPrimesByFermat(start, end); // Поиск простых чисел методом Ферма
+    findPrimesByFermatMethod(start, end); // Поиск простых чисел методом Ферма
 
     return 0;
 }
