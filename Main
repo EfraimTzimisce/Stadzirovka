@@ -2,7 +2,8 @@
 #include <vector>
 #include <chrono>
 #include <cmath>
-// Function to check if a number is prime
+
+// Функция для проверки, является ли число простым (метод перебора)
 bool isPrime(int n) {
     if (n <= 1) return false;
     for (int i = 2; i <= sqrt(n); ++i) {
@@ -10,7 +11,20 @@ bool isPrime(int n) {
     }
     return true;
 }
-// Function for finding primes using Trial Division
+
+// Функция для проверки, является ли число простым (алгоритм Ферма)
+bool isFermatPrime(int n) {
+    if (n <= 1) return false;
+    if (n == 2) return true;
+    for (int a = 2; a < n; ++a) {
+        if (static_cast<int>(std::pow(a, n - 1)) % n != 1) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Функция для поиска простых чисел методом перебора
 void findPrimesByTrialDivision(int start, int end) {
     auto start_time = std::chrono::steady_clock::now();
     std::vector<int> primes;
@@ -23,14 +37,9 @@ void findPrimesByTrialDivision(int start, int end) {
     std::cout << "Trial Division: Found " << primes.size() << " prime numbers in "
               << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()
               << " milliseconds" << std::endl;
-    std::cout << "Primes: ";
-    for (int prime : primes) {
-        std::cout << prime << " ";
-    }
-    std::cout << std::endl;
 }
-// Function for finding primes using Fermat's Little Theorem (not implemented)
-// Function for finding primes using Sieve of Eratosthenes
+
+// Функция для поиска простых чисел методом Решета Эратосфена
 void findPrimesBySieveOfEratosthenes(int start, int end) {
     auto start_time = std::chrono::steady_clock::now();
     std::vector<bool> isPrime(end + 1, true);
@@ -52,29 +61,50 @@ void findPrimesBySieveOfEratosthenes(int start, int end) {
     std::cout << "Sieve of Eratosthenes: Found " << primes.size() << " prime numbers in "
               << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()
               << " milliseconds" << std::endl;
-    std::cout << "Primes: ";
-    for (int prime : primes) {
-        std::cout << prime << " ";
-    }
-    std::cout << std::endl;
 }
+
+// Функция для поиска простых чисел методом Ферма
+void findPrimesByFermat(int start, int end) {
+    auto start_time = std::chrono::steady_clock::now();
+    std::vector<int> primes;
+    for (int i = start; i <= end; ++i) {
+        if (isFermatPrime(i)) {
+            primes.push_back(i);
+        }
+    }
+    auto end_time = std::chrono::steady_clock::now();
+    std::cout << "Fermat's Algorithm: Found " << primes.size() << " prime numbers in "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()
+              << " milliseconds" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
-    if (argc != 4) {
-        std::cerr << "Usage: " << argv[0] << " <start_number> <end_number> <f|s|e>" << std::endl;
+    if (argc < 2 || argc > 3) {
+        std::cerr << "Usage: " << argv[0] << " <end_number> [start_number=1]" << std::endl;
         return 1;
     }
-    int start = std::stoi(argv[1]);
-    int end = std::stoi(argv[2]);
-    char option = argv[3][0];
-    if (option == 's') {
-        findPrimesByTrialDivision(start, end);
-    } else if (option == 'f') {
-        // findPrimesByFermatMethod(start, end); // Not implemented
-    } else if (option == 'e') {
-        findPrimesBySieveOfEratosthenes(start, end);
-    } else {
-        std::cerr << "Invalid option. Available options: s (Trial Division), f (Fermat Method), e (Sieve of Eratosthenes)" << std::endl;
+
+    int start = 1; // Начало диапазона по умолчанию
+    int end = std::stoi(argv[1]); // Преобразование первого аргумента в конец диапазона
+
+    if (argc == 3) {
+        start = std::stoi(argv[2]); // Преобразование второго аргумента в начало диапазона
+    }
+
+    if (start > end) {
+        int temp = start;
+        start = end;
+        end = temp;
+    }
+
+    if (start < 1 || end < 1) {
+        std::cerr << "Error: Numbers must be positive integers." << std::endl;
         return 1;
     }
+
+    findPrimesByTrialDivision(start, end); // Поиск простых чисел методом перебора
+    findPrimesBySieveOfEratosthenes(start, end); // Поиск простых чисел методом Решета Эратосфена
+    findPrimesByFermat(start, end); // Поиск простых чисел методом Ферма
+
     return 0;
 }
