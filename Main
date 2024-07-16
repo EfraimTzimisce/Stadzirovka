@@ -2,56 +2,37 @@
 #include <vector>
 #include <chrono>
 #include <cmath>
-
-// Функция для поиска простых чисел методом деления
-void findPrimesByTrialDivision(int start, int end) {
-    
-    int count = 0;
-    auto start_time = std::chrono::steady_clock::now();
-    for (int i = start; i <= end; ++i) {
-        if (isPrime(i)) {
-            // std::cout << i << " ";
-            count++;
-        }
+// Function to check if a number is prime
+bool isPrime(int n) {
+    if (n <= 1) return false;
+    for (int i = 2; i <= sqrt(n); ++i) {
+        if (n % i == 0) return false;
     }
-    auto end_time = std::chrono::steady_clock::now();
-    std::cout << "Perebor: Found " << count << " prime numbers in "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()
-              << " milliseconds" << std::endl;
+    return true;
 }
-
-// Функция для поиска простых чисел методом Алгоритм Ферма
-void findPrimesByFermatMethod(int start, int end) {
+// Function for finding primes using Trial Division
+void findPrimesByTrialDivision(int start, int end) {
     auto start_time = std::chrono::steady_clock::now();
-
     std::vector<int> primes;
     for (int i = start; i <= end; ++i) {
-        bool isPrime = true;
-        if (i <= 1) {
-            isPrime = false;
-        } else {
-            for (int j = 2; j <= sqrt(i); ++j) {
-                if (i % j == 0) {
-                    isPrime = false;
-                    break;
-                }
-            }
-        }
-        if (isPrime) {
+        if (isPrime(i)) {
             primes.push_back(i);
         }
     }
-
     auto end_time = std::chrono::steady_clock::now();
-    std::cout << "Fermat's Method: Found " << primes.size() << " prime numbers in "
+    std::cout << "Trial Division: Found " << primes.size() << " prime numbers in "
               << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()
               << " milliseconds" << std::endl;
+    std::cout << "Primes: ";
+    for (int prime : primes) {
+        std::cout << prime << " ";
+    }
+    std::cout << std::endl;
 }
-
-// Функция для поиска простых чисел методом Решето Эратосфена
+// Function for finding primes using Fermat's Little Theorem (not implemented)
+// Function for finding primes using Sieve of Eratosthenes
 void findPrimesBySieveOfEratosthenes(int start, int end) {
     auto start_time = std::chrono::steady_clock::now();
-
     std::vector<bool> isPrime(end + 1, true);
     isPrime[0] = isPrime[1] = false;
     for (int p = 2; p * p <= end; ++p) {
@@ -61,41 +42,39 @@ void findPrimesBySieveOfEratosthenes(int start, int end) {
             }
         }
     }
-
-    int count = 0;
+    std::vector<int> primes;
     for (int i = start; i <= end; ++i) {
         if (isPrime[i]) {
-            // std::cout << i << " ";
-            count++;
+            primes.push_back(i);
         }
     }
-
     auto end_time = std::chrono::steady_clock::now();
-    std::cout << "Sieve of Eratosthenes: Found " << count << " prime numbers in "
+    std::cout << "Sieve of Eratosthenes: Found " << primes.size() << " prime numbers in "
               << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()
               << " milliseconds" << std::endl;
+    std::cout << "Primes: ";
+    for (int prime : primes) {
+        std::cout << prime << " ";
+    }
+    std::cout << std::endl;
 }
-
 int main(int argc, char *argv[]) {
     if (argc != 4) {
         std::cerr << "Usage: " << argv[0] << " <start_number> <end_number> <f|s|e>" << std::endl;
         return 1;
     }
-
     int start = std::stoi(argv[1]);
     int end = std::stoi(argv[2]);
     char option = argv[3][0];
-
     if (option == 's') {
         findPrimesByTrialDivision(start, end);
     } else if (option == 'f') {
-        findPrimesByFermatMethod(start, end);
+        // findPrimesByFermatMethod(start, end); // Not implemented
     } else if (option == 'e') {
         findPrimesBySieveOfEratosthenes(start, end);
     } else {
         std::cerr << "Invalid option. Available options: s (Trial Division), f (Fermat Method), e (Sieve of Eratosthenes)" << std::endl;
         return 1;
     }
-
     return 0;
 }
