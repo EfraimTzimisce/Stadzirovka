@@ -3,6 +3,34 @@
 #include <chrono>
 #include <cmath>
 
+/*
+
+Команда для сборки g++ -o Stadzirovka Stadzirovka.cpp
+Команда для вызова программы ./Stadzirovka <подставить один или два аргумента, например ./Stadzirovka 50 100 или ./Stadzirovka 50>
+
+Результаты тестов
+
+Start from: 1
+Ends with: 1000
+Trial Division: Found 168 prime numbers in 0 milliseconds
+Sieve of Eratosthenes: Found 168 prime numbers in 0 milliseconds
+Fermat's Algorithm: Found 168 prime numbers in 0 milliseconds
+
+Start from: 70
+Ends with: 10000000
+Trial Division: Found 664560 prime numbers in 8930 milliseconds
+Sieve of Eratosthenes: Found 664560 prime numbers in 486 milliseconds
+Fermat's Algorithm: Found 664560 prime numbers in 8916 milliseconds
+
+Start from: 1
+Ends with: 622337203
+Trial Division: Found 32428773 prime numbers in 3302759 milliseconds
+Sieve of Eratosthenes: Found 32428773 prime numbers in 38897 milliseconds
+Fermat's Algorithm: Found 32428773 prime numbers in 3350990 milliseconds
+
+Программа выдает количество найденных простых чисел, времяв затраченное на поиск, а также начало и конец диапазона, заданные при вызове (для контроля выполнения программы).
+
+
 // Функция для проверки, является ли число простым (метод перебора)
 bool isPrime(int n) {
     if (n <= 1) return false;
