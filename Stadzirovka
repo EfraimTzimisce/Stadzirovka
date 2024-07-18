@@ -32,28 +32,6 @@ Fermat's Algorithm: Found 32428773 prime numbers in 3350990 milliseconds
 
 */
 
-
-// Функция для проверки, является ли число простым (метод перебора)
-bool isPrime(int n) {
-    if (n <= 1) return false;
-    for (int i = 2; i <= sqrt(n); ++i) {
-        if (n % i == 0) return false;
-    }
-    return true;
-}
-
-// Функция для проверки, является ли число простым (алгоритм Ферма)
-bool isFermatPrime(int n) {
-    if (n <= 1) return false;
-    if (n == 2) return true;
-    for (int a = 2; a < n; ++a) {
-        if (static_cast<int>(std::pow(a, n - 1)) % n != 1) {
-            return false;
-        }
-    }
-    return true;
-}
-
 // Функция для поиска простых чисел методом перебора
 void findPrimesByTrialDivision(int start, int end) {
     auto start_time = std::chrono::steady_clock::now();
