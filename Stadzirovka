@@ -46,13 +46,6 @@ Sieve of Eratosthenes: Found 32428773 prime numbers in 38897 milliseconds
 
 */
 
-bool isPrime(int n) {
-    if (n <= 1) return false;
-    for (int i = 2; i <= sqrt(n); ++i) {
-        if (n % i == 0) return false;
-    }
-    return true;
-}
 
 
 // Функция для поиска простых чисел методом Решета Эратосфена
