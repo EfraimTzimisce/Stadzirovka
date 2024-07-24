@@ -10,6 +10,17 @@
 
 Результаты тестов
 
+Через char
+
+Terminate called after throwing an instance of ‘std::length_error’
+what (): cannot create std ::vector larger than max_size()
+Aborted (core dumped)
+
+Через long long
+
+Sieve of Eratosthenes: Found 32428773 prime numbers in 40043 milliseconds
+
+
 Через int
 
 Start from: 1
@@ -49,19 +60,19 @@ Sieve of Eratosthenes: Found 32428773 prime numbers in 38897 milliseconds
 
 
 // Функция для поиска простых чисел методом Решета Эратосфена
-void findPrimesBySieveOfEratosthenes(int start, int end) {
+void findPrimesBySieveOfEratosthenes(long long start, long long end) {
     auto start_time = std::chrono::steady_clock::now();
-    std::vector<int> isPrime(end + 1, 1); // Используем тип int
-    isPrime[0] = isPrime[1] = 0;
-    for (int p = 2; p * p <= end; ++p) {
+    std::vector<bool> isPrime(end + 1, true); // Используем тип bool для оптимизации памяти
+    isPrime[0] = isPrime[1] = false; // 0 и 1 не являются простыми числами
+    for (long long p = 2; p * p <= end; ++p) {
         if (isPrime[p]) {
-            for (int i = p * p; i <= end; i += p) {
-                isPrime[i] = 0;
+            for (long long i = p * p; i <= end; i += p) {
+                isPrime[i] = false; // Обозначаем составные числа
             }
         }
     }
-    std::vector<int> primes;
-    for (int i = start; i <= end; ++i) {
+    std::vector<long long> primes;
+    for (long long i = start; i <= end; ++i) {
         if (isPrime[i]) {
             primes.push_back(i);
         }
@@ -72,25 +83,21 @@ void findPrimesBySieveOfEratosthenes(int start, int end) {
               << " milliseconds" << std::endl;
 }
 
-
-
 int main(int argc, char *argv[]) {
     if (argc < 2 || argc > 3) {
         std::cerr << "Usage: " << argv[0] << " <end_number> [start_number=1]" << std::endl;
         return 1;
     }
 
-    int start = 1; // Начало диапазона по умолчанию
-    int end = std::stoi(argv[1]); // Преобразование первого аргумента в конец диапазона
+    long long start = 1; // Начало диапазона по умолчанию
+    long long end = std::stoll(argv[1]); // Преобразование первого аргумента в конец диапазона
 
     if (argc == 3) {
-        start = std::stoi(argv[2]); // Преобразование второго аргумента в начало диапазона
+        start = std::stoll(argv[2]); // Преобразование второго аргумента в начало диапазона
     }
 
     if (start > end) {
-        int temp = start;
-        start = end;
-        end = temp;
+        std::swap(start, end); // Меняем местами, если start больше end
     }
 
     if (start < 1 || end < 1) {
@@ -101,9 +108,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Start from: " << start << std::endl; // Добавленная строка "Start from"
     std::cout << "Ends with: " << end << std::endl; // Добавленная строка "Ends with"
 
- 
     findPrimesBySieveOfEratosthenes(start, end); // Поиск простых чисел методом Решета Эратосфена
-
 
     return 0;
 }
