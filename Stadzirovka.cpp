@@ -60,19 +60,19 @@ Sieve of Eratosthenes: Found 32428773 prime numbers in 38897 milliseconds
 
 
 // Функция для поиска простых чисел методом Решета Эратосфена
-void findPrimesBySieveOfEratosthenes(long long start, long long end) {
+void findPrimesBySieveOfEratosthenes(int start, int end) {
     auto start_time = std::chrono::steady_clock::now();
     std::vector<bool> isPrime(end + 1, true); // Используем тип bool для оптимизации памяти
     isPrime[0] = isPrime[1] = false; // 0 и 1 не являются простыми числами
-    for (long long p = 2; p * p <= end; ++p) {
+    for (int p = 2; p * p <= end; ++p) {
         if (isPrime[p]) {
-            for (long long i = p * p; i <= end; i += p) {
+            for (int i = p * p; i <= end; i += p) {
                 isPrime[i] = false; // Обозначаем составные числа
             }
         }
     }
-    std::vector<long long> primes;
-    for (long long i = start; i <= end; ++i) {
+    std::vector<int> primes;
+    for (int i = start; i <= end; ++i) {
         if (isPrime[i]) {
             primes.push_back(i);
         }
